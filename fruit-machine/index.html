@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <title>furit</title>
+    <style>
+        body {
+            margin: 0;
+            position: relative;
+        }
+
+        .list-image {
+            margin: 0;
+            list-style: none;
+        }
+
+        .list-image>li {
+            float: left;
+        }
+
+        .list-image .text {
+            display: block;
+        }
+
+        .list-image .input-ele {
+            width: 100px;
+        }
+
+        .score {
+            position: absolute;
+            left: 0;
+            top: 300px;
+            z-index: 2;
+            font-size: 46px;
+            text-align: center;
+            width: 900px;
+        }
+
+        #score {
+            color: green;
+        }
+        #cost {
+            color: red;
+        }
+    </style>
+    <script src="./pixi.js"></script>
+</head>
+
+<body>
+    <div id="canvas-ele"></div>
+    <div class="score">
+        <div>得分：<span id="score">0</span></div>
+        <div>花销：<span id="cost">0</span></div>
+    </div>
+    <ul class="list-image">
+        <li>
+            <label class="text">天门：</label>
+            <input class="input-ele" id="e1" type="number" placeholder="大100、小50" />
+        </li>
+        <li>
+            <label class="text">7:</label>
+            <input class="input-ele" id="e2" type="number" placeholder="大20、小4" />
+        </li>
+        <li>
+            <label class="text">西瓜：</label>
+            <input class="input-ele" id="e3" type="number" placeholder="大20、小4" />
+        </li>
+        <li>
+            <label class="text">木瓜：</label>
+            <input class="input-ele" id="e4" type="number" placeholder="大15、小3" />
+        </li>
+        <li>
+            <label class="text">香蕉：</label>
+            <input class="input-ele" id="e5" type="number" placeholder="大10、小2" />
+        </li>
+        <li>
+            <label class="text">柠檬：</label>
+            <input class="input-ele" id="e6" type="number" placeholder="大10、小2" />
+        </li>
+        <li>
+            <label class="text">橘子：</label>
+            <input class="input-ele" id="e7" type="number" placeholder="大10、小2" />
+        </li>
+        <li>
+            <label class="text">樱桃：</label>
+            <input class="input-ele" id="e8" type="number" placeholder="5" />
+        </li>
+    </ul>
+    <div style="clear: both; padding-top:15px;">
+        <input value="1" type="number" id="exec"></input>
+        <button id="handleExecBtn">执行</button>
+    </div>
+    <script src="./script/main.js" type="module"></script>
+</body>
+
+</html>

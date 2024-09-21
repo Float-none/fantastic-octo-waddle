@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPS Game Visualization</title>
+    <style>
+        @font-face {
+            font-family: 'handwritten';
+            /* 字体名称，可以自定义 */
+            src: url('./cartoon-handwriten.woff') format('woff');
+            /* 字体文件的路径和格式 */
+            /* 可以添加其他格式（如ttf、eot等），以便提供兼容性 */
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        canvas {
+            border: 1px solid #000;
+            margin: 0 auto;
+            display: block;
+        }
+
+        .score {
+            font-family: 'handwritten';
+            font-size: 76px;
+            text-align: center;
+        }
+    </style>
+    <script src="./pixi-7.2.4.js"></script>
+</head>
+
+<body>
+    <!-- <canvas id="gameCanvas" width="1200" height="800"></canvas> -->
+    <div class="score">
+        现实： <span id="score1">0</span> 我： <span id="score2">0</span> 梦想： <span id="score3">0</span>
+    </div>
+    <script>
+        const COUNT = 1;
+        let curIndex = 1;
+        // const rocksVideo = new Audio('./dong.mp3');
+        // const rocksVideo = PIXI.sound.Sound.from('dong.mp3');
+        // const papersVideo = new Audio('./anxiaanniu.mp3');
+        // const scissorsVideo = new Audio('./tu.mp3');
+        // rocksVideo.play()
+        // const playVideo = {
+        //     rocks: rocksVideo,
+        //     papers: papersVideo,
+        //     scissors: scissorsVideo
+        // }
+        const rocksHtml = document.getElementById("score1");
+        const papersHtml = document.getElementById("score3");
+        const scissorsHtml = document.getElementById("score2");
+
+        const html = {
+            rocks: rocksHtml,
+            papers: papersHtml,
+            scissors: scissorsHtml
+        };
+        const score = {
+            rocks: 0,
+            papers: 0,
+            scissors: 0
+        }
+
+        const canvas_width = document.documentElement.clientWidth - 42;
+        const canvas_height = document.documentElement.clientHeight - 120;
+        const number = 30;
+        let items = null;
+        const ticker = new PIXI.Ticker();
+        const app = new PIXI.Application({ width: canvas_width, height: canvas_height, border: 1, backgroundColor: '#ffffff' });
+        document.body.appendChild(app.view);
+        const farTexture = PIXI.Texture.from("./role.png");
+        // const canvas = document.getElementById("gameCanvas");
+        // 定义当前canvas元素
+        // const ctx = canvas.getContext("2d");
+        // 定义单个组件
+        class Item {
+            constructor(type, x, y, index) {
+                // 类型
+                this.type = type;
+                this.rectWidth = 60;
+                this.rectHeight = 60;
+                // 边界位置
+                this.rangValue = Math.sqrt(this.rectWidth ** 2 + this.rectHeight ** 2);
+                // 初始位置
+                // this.x = x;
+                // this.y = y;
+                // 向量
+                // this.vx = 0;
+                // this.vy = 0;
+                // 速度
+                this.speed = this.getSpeed(type);
+                // 范围
+                // this.setween = 1;
+                // this.friction = 0.95
+                // 赋予实体
+                this.body = this.drawItems(x, y, index)
+            }
+            // 绘制当前参数
+            drawItems(x, y, index) {
+                let role = new PIXI.TilingSprite(farTexture, this.rectWidth, this.rectHeight);
+                role.tilePosition.x = this.getPosition(this.type);
+                role.tilePosition.y = 0;
+                role.x = x;
+                role.y = y;
+                role.key = `${this.type}${index}`;
+                app.stage.addChild(role);
+                return role
+            }
+            // 追踪最近距离猎物 同时避开最近的敌人
+            trace(enemys, preys) {
+                const enemyLength = enemys.length;
+                const preyLength = preys.length;
+                // 当两个数组都为空时,游戏结束
+                if (enemyLength === 0 && preyLength === 0) {
+                    // 结束游戏
+                    return;
+                }
+                // 寻找最近的敌人
+                let targetEnemy = null;
+                let targetDistanceEnemy = null;
+                // 计算enemys
+                if (enemyLength > 0) {
+                    for (let i = 0; i < enemyLength; i++) {
+                        const curEnemyDistance = this.distanceBetween(enemys[i].body, this.body);
+                        // 当发现与敌人位置为0时，则让自己成为敌人
+                        if (curEnemyDistance <= this.rangValue) {
+                            this.changeRole(enemys[i])
+                            targetEnemy = enemys[i];
+                            targetDistanceEnemy = curEnemyDistance;
+                            break;
+                        }
+                        // 当计算出有一个距离为5时，则直接中断循环
+                        // if (curEnemyDistance < this.rectWidth + this.speed * 3) {
+                        //     targetEnemy = enemys[i];
+                        //     targetDistanceEnemy = curEnemyDistance;
+                        //     break;
+                        // }
+                        // 赋值参数
+                        if (!targetDistanceEnemy || curEnemyDistance < targetDistanceEnemy) {
+                            targetEnemy = enemys[i];
+                            targetDistanceEnemy = curEnemyDistance;
+                        }
+                    }
+                }
+                // 寻找最近的猎物
+                let targetPrey = null;
+                let targetDistancePrey = null;
+                // 计算猎物
+                if (preyLength > 0) {
+                    for (let i = 0; i < preyLength; i++) {
+                        const curPreyDistance = this.distanceBetween(preys[i].body, this.body);
+                        // 但发现与猎物位置为0时，则让猎物变成自己同类
+                        if (curPreyDistance <= this.rangValue) {
+                            preys[i].changeRole(this)
+                            targetPrey = preys[i];
+                            targetDistancePrey = curPreyDistance;
+                            break;
+                        }
+                        // 当计算出有一个距离为5时，则直接中断循环
+                        // if (curPreyDistance < this.rectWidth + this.speed * 3) {
+                        //     targetPrey = preys[i];
+                        //     targetDistancePrey = curPreyDistance;
+                        //     break;
+                        // }
+                        // 赋值参数
+                        if (!targetDistancePrey || curPreyDistance < targetDistancePrey) {
+                            targetPrey = preys[i];
+                            targetDistancePrey = curPreyDistance;
+                        }
+                    }
+                }
+                let target = targetPrey;
+                let targetParams = 1;
+
+                // 当敌人位置小于位置猎物位置，则避开
+                // 当敌人位置大于猎物位置，则去寻找猎物
+                // 当猎物都消失时 只能逃跑
+                if ((targetEnemy && (targetDistanceEnemy < this.rangValue + this.speed * 3)) || !targetPrey) {
+                    target = targetEnemy;
+                    targetParams = -1
+                }
+                // if (targetDistanceEnemy <= targetDistancePrey) {
+                //     target = targetPrey;
+                //     targetParams = 1
+                // }
+                if (!target) {
+                    console.log(target, targetPrey, targetEnemy, targetDistanceEnemy);
+                    return;
+                }
+                this.move(target, targetParams)
+            }
+            // 移动算法
+            move(target, arrow) {
+                // console.log(target)
+                // console.log(items)
+                let dx = target.body.x - this.body.x;
+                let dy = target.body.y - this.body.y;
+                let angle = Math.atan2(dy, dx);
+
+                let vx = this.body.x;
+                let vy = this.body.y;
+
+                // 边界处理
+                if (vx > canvas_width - this.rectWidth) {
+                    vx = this.rectWidth;
+                } else if (vx < 0) {
+                    vx = canvas_width - this.rectWidth;
+                }
+                if (vy > canvas_height - this.rectHeight) {
+                    vy = this.rectHeight;
+                } else if (vy < 0) {
+                    vy = canvas_height - this.rectHeight;
+                }
+                // 追踪猎物 赋予速度
+                vx += this.speed * Math.cos(angle) * arrow
+                vy += this.speed * Math.sin(angle) * arrow
+                // 
+                this.body.x = vx;
+                this.body.y = vy;
+            }
+            // 自由移动
+            // autoMove() {
+            //     this.vx += Math.random() * this.speed - this.setween;
+            //     this.vy += Math.random() * this.speed - this.setween;
+
+            //     this.body.x += this.vx;
+            //     this.body.y += this.vy;
+
+            //     if (this.body.x > canvas_width) {
+            //         this.body.x = this.rectWidth;
+            //     } else if (this.body.x < this.rectWidth) {
+            //         this.body.x = canvas_width;
+            //     }
+            //     if (this.body.y > canvas_height) {
+            //         this.body.y = this.rectWidth;
+            //     } else if (this.body.y < this.rectWidth) {
+            //         this.body.y = canvas_height;
+            //     }
+
+            //     this.vx *= this.friction;
+            //     this.vy *= this.friction;
+            // }
+            // 变换角色 // 传入需要变更的角色类型
+            changeRole(changeTargetItem, type) {
+                // console.log(this, type, this.getPosition(changeTargetItem.type))
+                const curType = this.type;
+                const targetType = changeTargetItem.type;
+                this.type = targetType;
+                this.body.tilePosition.x = this.getPosition(targetType)
+                const changeItemIndex = items[curType].findIndex(element => element.body.key === this.body.key)
+                // 删除当前数组中的元素
+                items[curType].splice(changeItemIndex, 1)
+                // 增加敌对方的元素
+                items[targetType].push(this);
+                // 播放音效
+                // playVideo[targetType].play();
+            }
+            // 获取颜色
+            getPosition(type) {
+                switch (type) {
+                    case "rocks":
+                        // return "0xFF0000"; // red
+                        return 0; // 现实
+                    case "papers":
+                        // return "0x00FF00"; // green
+                        return 60; // 我
+                    case "scissors":
+                        // return "0x000000"; // black
+                        return 120; // 梦想
+                    // default: return '0x0000FF'; // yellow
+                    default: 0; // yellow
+                }
+            }
+            // 获取颜色
+            getSpeed(type) {
+                switch (type) {
+                    case "rocks":
+                        // return "0xFF0000"; // red
+                        return 5; // 现实
+                    case "papers":
+                        // return "0x00FF00"; // green
+                        return 6; // 我
+                    case "scissors":
+                        // return "0x000000"; // black
+                        return 5; // 梦想
+                    // default: return '0x0000FF'; // yellow
+                    default: 0; // yellow
+                }
+            }
+            // 两点之间的距离
+            distanceBetween(point1, point2) {
+                return Math.sqrt((point1.x - point2.x) ** 2 + (point1.y - point2.y) ** 2);
+            }
+        }
+        // 生成实体
+        function drawItems() {
+            // 
+            const rocks = [];
+            const papers = [];
+            const scissors = [];
+            for (let i = 1; i <= number; i++) {
+                rocks.push(new Item('rocks', Math.ceil(Math.random() * canvas_width), Math.ceil(Math.random() * canvas_height), i))
+                papers.push(new Item('papers', Math.ceil(Math.random() * canvas_width), Math.ceil(Math.random() * canvas_height), i))
+                scissors.push(new Item('scissors', Math.ceil(Math.random() * canvas_width), Math.ceil(Math.random() * canvas_height), i))
+            }
+            return {
+                rocks,
+                papers,
+                scissors
+            }
+        }
+        // 判断其中两个参数为0
+        function checkTwoZeros(a, b, c) {
+            // 判断 a、b、c 中是否有两个为 0
+            if ((a === 0 && b === 0) || (a === 0 && c === 0) || (b === 0 && c === 0)) {
+                return true;
+            }
+            return false;
+        }
+
+        items = drawItems();
+
+        // 重新分配位置
+        function resetItemsPosition(data) {
+            const rocks = [];
+            const papers = [];
+            const scissors = [];
+            Object.keys(data).forEach(name => {
+                if (data[name].length > 0) {
+                    console.log(name)
+                    data[name].forEach((element, index) => {
+                        element.body.x = Math.ceil(Math.random() * canvas_width);
+                        element.body.y = Math.ceil(Math.random() * canvas_height);
+                        if (element.body.key.indexOf('rocks') !== -1) {
+                            element.type = 'rocks'
+                            element.body.tilePosition.x = 0;
+                            rocks.push(element)
+                            return;
+                        }
+                        if (element.body.key.indexOf('papers') !== -1) {
+                            element.type = 'papers'
+                            element.body.tilePosition.x = 60;
+                            papers.push(element)
+                            return;
+                        }
+                        if (element.body.key.indexOf('scissors') !== -1) {
+                            element.type = 'scissors'
+                            element.body.tilePosition.x = 120;
+                            scissors.push(element)
+                            return;
+                        }
+                    })
+                }
+            })
+            items.rocks = rocks;
+            items.papers = papers;
+            items.scissors = scissors;
+        }
+        // 执行判断
+        function play(dela) {
+            const rocksLen = items.rocks.length;
+            const papersLen = items.papers.length;
+            const scissorsLen = items.scissors.length;
+
+            if (checkTwoZeros(rocksLen, papersLen, scissorsLen)) {
+                Object.keys(items).forEach(name => {
+                    if (items[name].length > 0) {
+                        score[name] += 1;
+                        html[name].innerHTML = score[name];
+                    }
+                })
+                ticker.stop();
+                // 当前执行全部结束
+                if (curIndex >= COUNT) {
+                    return;
+                }
+                curIndex += 1;
+                const timer = setTimeout(() => {
+                    resetItemsPosition(items);
+                    ticker.start();
+                    clearTimeout(timer)
+                }, 200)
+                return;
+            }
+            if (rocksLen > 0) {
+                items.rocks.forEach(element => element.trace(items.papers, items.scissors))
+            }
+            if (papersLen > 0) {
+                items.papers.forEach(element => element.trace(items.scissors, items.rocks))
+            }
+            if (scissorsLen > 0) {
+                items.scissors.forEach(element => element.trace(items.rocks, items.papers))
+            }
+        }
+        // items.rocks.forEach(element => element.body.tint = '0x0000FF')
+        ticker.add(play);
+        ticker.start();
+    </script>
+</body>
+
+</html>
