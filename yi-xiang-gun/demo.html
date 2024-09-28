@@ -1,4 +1,4 @@
-<!DOCTYPE html>demo.html
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -97,6 +97,7 @@
       init();
       center = getElementCenter(floatBall);
     });
+
     function getElementCenter(element) {
       const rect = element.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
@@ -111,6 +112,7 @@
       return imageTags.includes(node.tagName) &&
         !(node.tagName === 'BODY' && node.classList.contains('floating'));
     }
+
     function init() {
       const steps = [];
       const elements = [];
@@ -239,6 +241,10 @@
       //const config = { childList: true, subtree: true };
       // observer.observe(targetNodeObject, config);
     }
+  </script>
+
+  <script>
+    // const targetNodeObject=document.body;const styleElement=document.createElement('style');const floatBall=document.createElement('div');let center={centerX:0,centerY:0};const timer=32;styleElement.textContent=`.highlighted-text{width:4px;height:4px;margin:0 2px;display:inline-block;overflow:hidden;background-color:#f00;transition:all 1s}.highlighted-image{margin:0 2px!important;display:inline-block!important;overflow:hidden!important;background-color:#000!important;transition:all 1s;transform-origin:center top}.floating-ball{width:4px;position:fixed;height:100px;background:#000!important;animation:floatAnimation 0.2s linear infinite;left:50%;top:-800px;transition:top 1s ease;z-index:9999;border:1px solid#fff;transform-origin:center center}@keyframes floatAnimation{to{transform:rotate(360deg)}}.inhaleAnimation{position:fixed;z-index:9999;animation:inhaleAnimation 2s ease-out forwards}@keyframes inhaleAnimation{to{transform:scale(0)}}`;document.head.appendChild(styleElement);function createBall(callback){floatBall.classList.add('floating-ball');targetNodeObject.appendChild(floatBall);setTimeout(()=>{floatBall.style.top="100px";setTimeout(()=>{if(callback)callback()},1000)},100)}createBall(()=>{init();center=getElementCenter(floatBall)});function getElementCenter(element){const rect=element.getBoundingClientRect();const centerX=rect.left+rect.width/2;const centerY=rect.top+rect.height/2;return{centerX,centerY}}function isImageNode(node){if(node.tagName==='BODY'){return}const imageTags=['IMG','IMAGE','VIDEO','svg',"FORM","svg"];return imageTags.includes(node.tagName)&&!(node.tagName==='BODY'&&node.classList.contains('floating'))}function init(){const steps=[];const elements=[];function getTextNodes(element){const textNodes=[];const imageNodes=[];function traverse(node){hasBackgroundColor(node);if(node.nodeType===Node.TEXT_NODE&&node.nodeValue.trim()!==''){textNodes.push(node)}else if(isImageNode(node)){imageNodes.push(node)}else if(node.nodeType===Node.ELEMENT_NODE&&!isExcludedNode(node)){for(const childNode of node.childNodes){traverse(childNode)}}}function isExcludedNode(node){const excludedTags=['SCRIPT','STYLE','LINK','IFRAME','path'];return excludedTags.includes(node.tagName)}function hasBackgroundColor(node){try{const computedStyle=window.getComputedStyle(node);const backgroundColor=computedStyle.backgroundColor;if(backgroundColor!=='rgba(0, 0, 0, 0)'&&backgroundColor!=='transparent'){node.style.backgroundColor='rgba(255, 255, 255, 1)'}}catch(e){}}traverse(element);return{textNodes,imageNodes}}function addStep(func,node){steps.push(func.bind(this));elements.push(node)}function startStep(){const interTimer=setInterval(()=>{if(steps.length>0){const func=steps.shift();const element=elements.shift();if(func){func();if(element){const rect=element.getBoundingClientRect();element.style.top=`${rect.top}px`;element.style.left=`${rect.left}px`;addStep(()=>{element.classList.add('inhaleAnimation');element.style.top=`${center.centerY}px`;element.style.left=`${center.centerX}px`;element.addEventListener('animationend',function(){element.remove()})})}}}else{clearInterval(interTimer)}},timer)}const{textNodes,imageNodes}=getTextNodes(targetNodeObject);function textFn(node){const textContent=node.nodeValue.trim();const newSpan=document.createElement('span');const newContent=Array.from(textContent).map(char=>{const charSpan=document.createElement('span');charSpan.textContent=char;addStep(()=>{charSpan.classList.add("highlighted-text")},charSpan);newSpan.appendChild(charSpan);return charSpan.outerHTML}).join('');node.parentNode.replaceChild(newSpan,node)};function imageFn(node){const charSpan=document.createElement('span');node.classList.add("highlighted-image");addStep(()=>{const rect=node.getBoundingClientRect();charSpan.style.width=`${node.width||node.clientWidth||rect.width}px`;charSpan.style.height=`${node.height||node.clientHeight||rect.width}px`;charSpan.classList.add("highlighted-image");node.replaceWith(charSpan);addStep(()=>{charSpan.style.width="4px"},charSpan)})}textNodes.forEach(node=>{if(node.nodeValue.indexOf('@font-face')!==-1){return}textFn(node)});imageNodes.forEach(node=>{imageFn(node)});startStep()}
   </script>
 </body>
 

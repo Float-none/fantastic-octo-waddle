@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Grass Pattern with Mouse Click</title>
+    <style>
+        .card-list {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .img-container {
+            border: 1px solid #ececec;
+            height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: aliceblue;
+        }
+
+        .item {
+            flex: auto;
+            max-width: 220px;
+        }
+
+        .text {
+            display: flex;
+            white-space: nowrap;
+        }
+
+        .text>.span {
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+
+        .text::after {
+            /* direction: rtl; */
+            /* overflow: hidden; */
+            content: attr(data-title);
+        }
+
+        /* 
+        p.test1 {
+            width: 200px;
+            border: 1px solid green;
+            padding: 10px;
+            white-space: nowrap;
+        }
+
+        p>span {
+            white-space: nowrap;
+            overflow: hidden;
+            vertical-align: middle;
+        }
+
+        .ellipsis {
+            display: inline-block;
+            width: calc(50% + 1.2em);
+            text-overflow: ellipsis;
+        }
+
+        .indent {
+            display: inline-flex;
+            width: calc(50% - 1.2em);
+            justify-content: flex-end;
+        } */
+    </style>
+</head>
+
+<body>
+    <!-- <p class="test1">
+        <span class="ellipsis">1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18</span><span class="indent">1 2 3 4 5 6 7 8 9
+            10 11 12 13 14 15 16 17 18</span>
+    </p> -->
+    <div class="card-list">
+        <div class="item">
+            <div class="img-container"><img alt="前端大佬" /></div>
+            <div class="text" data-title="66牛.png">
+                <span class="span">666666666666</span>
+            </div>
+        </div>
+        <div class="item">
+            <div class="img-container">.zip图标</div>
+            <div class="text" data-title="牛牛牛.zip">
+                <span class="span">榜1牛牛牛牛牛牛牛牛牛牛牛牛牛</span>
+            </div>
+        </div>
+        <div class="item">
+            <div class="img-container">.doc图标</div>
+            <div class="text" data-title="6说明.doc">
+                <span class="span">榜1plus6666666666666666</span>
+            </div>
+        </div>
+        <div class="item">
+            <div class="img-container">.pdf图标</div>
+            <div class="text" data-title="亲密照.pdf">
+                <span class="span">榜166666666666666666</span>
+            </div>
+        </div>
+        <div class="item">
+            <div class="img-container"><img alt="前端大佬" /></div>
+            <div class="text" data-title="66牛.png">
+                <span class="span">6666666666666666666666666666666</span>
+            </div>
+        </div>
+        <div class="item">
+            <div class="img-container">.zip图标</div>
+            <div class="text" data-title="牛牛牛.zip">
+                <span class="span">榜1牛牛牛牛牛牛牛牛牛牛牛牛牛</span>
+            </div>
+        </div>
+        <div class="item">
+            <div class="img-container">.doc图标</div>
+            <div class="text" data-title="6说明.doc">
+                <span class="span">榜1plus6666666666666666</span>
+            </div>
+        </div>
+        <div class="item">
+            <div class="img-container">.pdf图标</div>
+            <div class="text" data-title="亲密照.pdf">
+                <span class="span">榜166666666666666666</span>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

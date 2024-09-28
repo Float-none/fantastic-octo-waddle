@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Segment Intersection</title>
+  <style>
+    body,
+    html {
+      margin: 0;
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+    }
+
+    #gameCanvas {
+      display: block;
+      background-color: whitesmoke;
+      margin: auto;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="gameCanvas"></canvas>
+
+  <script>
+    gameCanvas.width = window.innerWidth
+    gameCanvas.height = window.innerHeight
+
+    let t = 0.7
+    const A = { x: 200, y: 150 }
+    const B = { x: 150, y: 250 }
+    const C = { x: 50, y: 100 }
+    const D = { x: 250, y: 200 }
+
+    const ctx = gameCanvas.getContext("2d")
+
+
+    animate()
+
+    function animate() {
+
+      ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height)
+      ctx.beginPath()
+      ctx.moveTo(A.x, A.y)
+      ctx.lineTo(B.x, B.y)
+
+      ctx.moveTo(C.x, C.y)
+      ctx.lineTo(D.x, D.y)
+      ctx.stroke()
+
+      const I = getIntersection(A, B, C, D)
+
+      drawDot(I, "I",)
+
+      drawDot(A, "A",)
+      drawDot(B, "B",)
+      drawDot(C, "C",)
+      drawDot(D, "D",)
+
+      requestAnimationFrame(animate)
+      // t += 0.02
+    }
+
+    function getIntersection(A, B, C, D) {
+      const top = (D.x - C.x) * (A.y - C.y) - (D.y - C.y) * (A.x - C.x)
+      const bottom = (D.y - C.y) * (B.x - A.x) - (D.x - C.x) * (B.y - A.y)
+      const t = top / bottom
+      return {
+        x: lerp(A.x, B.x, t),
+        y: lerp(A.y, B.y, t)
+      }
+    }
+
+    function drawDot(point, label, isRed) {
+      ctx.beginPath();
+      ctx.fillStyle = isRed ? "red" : "white"
+      ctx.arc(point.x, point.y, 10, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.stroke()
+      ctx.fillStyle = 'black'
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.font = "bold 16px Arial"
+      ctx.fillText(label, point.x, point.y)
+    }
+
+    function lerp(A, B, t) {
+      return A + (B - A) * t
+    }
+
+  </script>
+</body>
+
+</html>
