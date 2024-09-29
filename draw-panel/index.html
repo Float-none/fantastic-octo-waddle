@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Draw Panel</title>
+  <link rel="shortcut icon" href="./favicon.ico" />
+  <link rel="stylesheet" href="./style/index.css" />
+</head>
+
+<body>
+  <div class="left-container">
+    <button id="open-sketch-pad">打开画板</button>
+    <button id="open-network-chart">打开神经网络图例</button>
+    <h1>Testing Data</h1>
+    <div id="container"></div>
+  </div>
+  <div class="right-container">
+    <div id="show-data"></div>
+    <canvas id="chart"></canvas>
+    <div id="confusion-container"></div>
+  </div>
+  <div id="sketch-frame">
+    <div id="show-text">Show Text</div>
+    <canvas id="sketch-pad"></canvas>
+    <button id="undo">回退</button>
+  </div>
+  <div id="visualizer-panel">
+    <canvas id="visualizer-canvas" style="background-color: #000;"></canvas>
+  </div>
+  <script src="./main.js" type="module"></script>
+</body>
+
+</html>
